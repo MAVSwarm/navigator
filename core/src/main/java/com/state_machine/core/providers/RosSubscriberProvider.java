@@ -2,7 +2,7 @@ package com.state_machine.core.providers;
 
 import geometry_msgs.PoseStamped;
 import geometry_msgs.TwistStamped;
-import mavros_msgs.BatteryStatus;
+import sensor_msgs.BatteryState;
 import mavros_msgs.ExtendedState;
 import org.ros.node.ConnectedNode;
 import org.ros.node.topic.Subscriber;
@@ -13,7 +13,7 @@ import nav_msgs.Odometry;
 public class RosSubscriberProvider {
 
     private Subscriber<State> stateSubscriber;
-    private Subscriber<BatteryStatus> batteryStatusSubscriber;
+    private Subscriber<BatteryState> batteryStateSubscriber;
     private Subscriber<ExtendedState> extendedStateSubscriber;
 
     private Subscriber<NavSatFix> globalPositionGlobalSubscriber;
@@ -24,7 +24,7 @@ public class RosSubscriberProvider {
 
     public RosSubscriberProvider(ConnectedNode node){
         stateSubscriber = node.newSubscriber("mavros/state", State._TYPE);
-        batteryStatusSubscriber = node.newSubscriber("mavros/battery", BatteryStatus._TYPE);
+        batteryStateSubscriber = node.newSubscriber("mavros/battery", BatteryState._TYPE);
         extendedStateSubscriber = node.newSubscriber("mavros/extended_state", ExtendedState._TYPE);
         globalPositionGlobalSubscriber = node.newSubscriber("mavros/global_position/global", NavSatFix._TYPE);
         localPositionVelocitySubscriber = node.newSubscriber("mavros/local_position/velocity", TwistStamped._TYPE);
@@ -33,7 +33,7 @@ public class RosSubscriberProvider {
     }
 
     public Subscriber<State> getStateSubscriber() { return stateSubscriber; }
-    public Subscriber<BatteryStatus> getBatteryStatusSubscriber() { return batteryStatusSubscriber;  }
+    public Subscriber<BatteryState> getBatteryStateSubscriber() { return batteryStateSubscriber;  }
     public Subscriber<ExtendedState> getExtendedStateSubscriber() { return extendedStateSubscriber; }
     public Subscriber<NavSatFix> getGlobalPositionGlobalSubscriber() { return globalPositionGlobalSubscriber;}
     public Subscriber<TwistStamped> getLocalPositionVelocitySubscriber(){return localPositionVelocitySubscriber;}

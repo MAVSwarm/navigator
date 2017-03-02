@@ -6,7 +6,7 @@ import geometry_msgs.PoseWithCovariance;
 import geometry_msgs.TwistStamped;
 import mavros_msgs.ExtendedState;
 import mavros_msgs.State;
-import mavros_msgs.BatteryStatus;
+import sensor_msgs.BatteryState;
 import nav_msgs.Odometry;
 import org.ros.internal.message.DefaultMessageFactory;
 import org.ros.message.MessageFactory;
@@ -31,7 +31,7 @@ public class DroneStateTracker {
 
     public DroneStateTracker(
             Subscriber<State> stateSubscriber,
-            Subscriber<BatteryStatus> batterySubscriber,
+            Subscriber<BatteryState> batterySubscriber,
             Subscriber<ExtendedState> extendedStateSubscriber,
             Subscriber<TwistStamped> localPositionVelocitySubscriber,
             Subscriber<PoseStamped> localPositionPoseSubscriber,
@@ -87,10 +87,10 @@ public class DroneStateTracker {
         };
         stateSubscriber.addMessageListener(stateListener);
 
-        MessageListener<BatteryStatus> batteryListener = new MessageListener<BatteryStatus>() {
+        MessageListener<BatteryState> batteryListener = new MessageListener<BatteryState>() {
             @Override
-            public void onNewMessage(BatteryStatus status) {
-                battery = status.getRemaining();
+            public void onNewMessage(BatteryState state) {
+                battery = state.getPercentage();
             }
         };
         batterySubscriber.addMessageListener(batteryListener);

@@ -47,7 +47,7 @@ public class StateMachineNode extends AbstractNodeMain {
 
             droneStateTracker = new DroneStateTracker(
                     subscriberProvider.getStateSubscriber(),
-                    subscriberProvider.getBatteryStatusSubscriber(),
+                    subscriberProvider.getBatteryStateSubscriber(),
                     subscriberProvider.getExtendedStateSubscriber(),
                     subscriberProvider.getLocalPositionVelocitySubscriber(),
                     subscriberProvider.getLocalPositionPoseSubscriber(),
