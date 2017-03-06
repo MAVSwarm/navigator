@@ -27,6 +27,7 @@ import java.util.Vector;
 public class DecentralizedAction extends Action{
 
     private Log log;
+    private int seq;
     private DroneStateTracker stateTracker;
     private NeighborStateTracker neighborStateTracker;
     private Duration timeOut;
@@ -80,6 +81,7 @@ public class DecentralizedAction extends Action{
                                RosParamProvider rosParamProvider,
                                RosPublisherProvider rosPublisherProvider,
                                RosServiceProvider rosServiceProvider){
+        this.seq = 0;
         this.log = log;
         this.stateTracker = stateTracker;
         this.neighborStateTracker = neighborStateTracker;
@@ -132,6 +134,8 @@ public class DecentralizedAction extends Action{
             velocityObjective.getTwist().getLinear().setY(0);
             velocityObjective.getTwist().getLinear().setZ(0);
             velocityObjective.getHeader().setStamp(time);
+            velocityObjective.getHeader().setSeq(seq);
+            seq++;
             velocitySetpointPublisher.publish(velocityObjective);
 
             if (!stateTracker.getFCUMode().equals("OFFBOARD")){
@@ -281,6 +285,8 @@ public class DecentralizedAction extends Action{
             velocityObjective.getTwist().getLinear().setX(des_velocity.get(0,0));
             velocityObjective.getTwist().getLinear().setY(des_velocity.get(0,1));
             velocityObjective.getTwist().getLinear().setZ(0);
+            velocityObjective.getHeader().setSeq(seq);
+            seq++;
             velocityObjective.getHeader().setStamp(time);
             velocitySetpointPublisher.publish(velocityObjective);
 
