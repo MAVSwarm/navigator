@@ -18,7 +18,6 @@
 apply plugin: 'application'
 mainClassName = 'org.ros.RosRun'
 
-
 /* 
  Dependencies can be on external maven artifacts (such as rosjava_core
  here) or on sibling subprojects. Fpr external maven artifact dependencies
@@ -32,7 +31,7 @@ repositories {
 
 dependencies {
   compile group:'org.ejml',name:'all',version:'0.30'
-  compile 'org.ros.rosjava_core:rosjava:[0.2,0.3)'
+  compile 'org.ros.rosjava_core:rosjava:[0.3,)'
   compile 'org.ros.rosjava_messages:mavros_msgs:[0.18.0, )'
   compile 'org.ros.rosjava_messages:hover_controller_msgs:0.0.1'
   compile 'org.ros.rosjava_messages:onboard_statemachine_msgs:[0.0.2, )'
