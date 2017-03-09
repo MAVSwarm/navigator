@@ -75,9 +75,13 @@ public class PX4FlyToAction extends Action {
 
         if(stateTracker.getDroneLanded() == DroneLanded.InAir){
 
-            objective.getPose().getPosition().setX(objective.getPose().getPosition().getX() - stateTracker.getLocalOrigin()[0]);
-            objective.getPose().getPosition().setY(objective.getPose().getPosition().getY() - stateTracker.getLocalOrigin()[1]);
-            objective.getPose().getPosition().setZ(objective.getPose().getPosition().getZ() - stateTracker.getLocalOrigin()[2]);
+            //objective.getPose().getPosition().setX(objective.getPose().getPosition().getX() - stateTracker.getLocalOrigin()[0]);
+            //objective.getPose().getPosition().setY(objective.getPose().getPosition().getY() - stateTracker.getLocalOrigin()[1]);
+            //objective.getPose().getPosition().setZ(objective.getPose().getPosition().getZ() - stateTracker.getLocalOrigin()[2]);
+
+            objective.getPose().getPosition().setX(objective.getPose().getPosition().getX());
+            objective.getPose().getPosition().setY(objective.getPose().getPosition().getY());
+            objective.getPose().getPosition().setZ(objective.getPose().getPosition().getZ());
 
             objective.getHeader().setStamp(time);
             setpointPositionLocalPub.publish(objective);
