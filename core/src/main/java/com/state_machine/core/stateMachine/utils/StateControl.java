@@ -21,7 +21,7 @@ import java.util.Queue;
 /**
  * Created by firefly on 12/9/16.
  */
-public class StateControlInterface {
+public class StateControl {
     private Queue<State> stateQueue;
     private FileProvider fileProvider;
     private RosParamProvider rosParamProvider;
@@ -29,11 +29,11 @@ public class StateControlInterface {
     private StateProvider stateProvider;
     private Log log;
 
-    public StateControlInterface(ConnectedNode node,
-                                 StateProvider stateProvider,
-                                 StateMachine stateMachine,
-                                 RosParamProvider rosParamProvider,
-                                 FileProvider fileProvider){
+    public StateControl(ConnectedNode node,
+                        StateProvider stateProvider,
+                        StateMachine stateMachine,
+                        RosParamProvider rosParamProvider,
+                        FileProvider fileProvider){
         this.rosParamProvider = rosParamProvider;
         this.stateProvider = stateProvider;
         this.stateMachine = stateMachine;

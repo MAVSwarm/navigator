@@ -4,7 +4,7 @@ import com.state_machine.core.droneState.DroneStateTracker;
 import com.state_machine.core.droneState.NeighborStateTracker;
 import com.state_machine.core.providers.*;
 import com.state_machine.core.stateMachine.StateMachine;
-import com.state_machine.core.stateMachine.utils.StateControlInterface;
+import com.state_machine.core.stateMachine.utils.StateControl;
 import com.state_machine.core.states.State;
 import org.apache.commons.logging.Log;
 import org.ros.concurrent.CancellableLoop;
@@ -55,7 +55,7 @@ public class StateMachineNode extends AbstractNodeMain {
                     subscriberProvider.getGlobalPositionGlobalSubscriber()
             );
             neighborStateTracker = new NeighborStateTracker(node);
-            actionProvider = new ActionProvider(log, serviceProvider, droneStateTracker, neighborStateTracker,fileProvider, publisherProvider,timeOut,serverProvider, rosParamProvider);
+            actionProvider = new ActionProvider(log, serviceProvider, droneStateTracker, neighborStateTracker, publisherProvider,timeOut,serverProvider, rosParamProvider);
             stateProvider = new StateProvider(actionProvider, serviceProvider, publisherProvider, log, droneStateTracker);
             fileProvider = new FileProvider(rosParamProvider,actionProvider, stateProvider, log);
             //stateQueue = fileProvider.readScript("/home/firefly/catkin_ws/src/onboard_statemachine/flight_script/test_flight.json");
@@ -77,17 +77,17 @@ public class StateMachineNode extends AbstractNodeMain {
                 droneStateTracker
         );
 
-        final StateControlInterface stateControlInterface = new StateControlInterface(node,stateProvider,stateMachine,rosParamProvider,fileProvider);
-        stateControlInterface.wrapHandleRequest("start");
+        final StateControl stateControl = new StateControl(node,stateProvider,stateMachine,rosParamProvider,fileProvider);
+        stateControl.wrapHandleRequest("start");
 
         node.executeCancellableLoop(new CancellableLoop() {
             @Override
             protected void loop() throws InterruptedException {
-                if(stateControlInterface.getStateQueue() != null
-                   && !stateControlInterface.getStateQueue().isEmpty()
+                if(stateControl.getStateQueue() != null
+                   && !stateControl.getStateQueue().isEmpty()
                    && stateMachine.getCurrentState().isIdling()
                    && stateMachine.getCurrentState().isSafeToExit()){
-                    stateMachine.setState(stateControlInterface.getStateQueue().remove());
+                    stateMachine.setState(stateControl.getStateQueue().remove());
                 }
                 stateMachine.update(node.getCurrentTime());
                 Thread.sleep(20);

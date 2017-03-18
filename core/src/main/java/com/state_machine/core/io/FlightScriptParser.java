@@ -84,10 +84,6 @@ public class FlightScriptParser {
                 return actionProvider.getArmAction();
             case "DisarmAction":
                 return actionProvider.getDisarmAction();
-            case "TakeOffAction":
-                return actionProvider.getTakeoffAction(repr.target_heightcm);
-            case "LandingAction":
-                return actionProvider.getLandingAction();
             case "SetFCUModeAction":
                 return actionProvider.getSetFCUModeAction(repr.newMode);
             case "PX4TakeoffAction":
@@ -96,10 +92,6 @@ public class FlightScriptParser {
                 return actionProvider.getPX4LandAction();
             case "DecentralizedAction":
                 return actionProvider.getDecentralizedAction();
-            case "FlyToAction":
-                List<Float> xyz1 = repr.waypoint;
-                Waypoint objective1 = new Waypoint(xyz1.get(0), xyz1.get(1), xyz1.get(2));
-                return actionProvider.getFlyToAction(objective1);
             case "PX4FlyToAction":
                 seq++;
                 List<Float> xyz2 = repr.waypoint;

@@ -1,4 +1,4 @@
-package com.state_machine.core.states.util;
+package com.state_machine.core.stateMachine.utils;
 
 public class StateException extends RuntimeException {
 
