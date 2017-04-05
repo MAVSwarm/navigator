@@ -6,6 +6,7 @@ import com.state_machine.core.actions.util.Waypoint;
 import com.state_machine.core.droneState.NeighborStateTracker;
 import org.apache.commons.logging.Log;
 import org.ros.message.Duration;
+import org.ros.message.Time;
 
 public class ActionProvider {
 
@@ -17,6 +18,7 @@ public class ActionProvider {
     private PX4LandAction px4LandAction;
     private DecentralizedAction decentralizedAction;
     private SimulinkAction simulinkAction;
+    private HoldAction holdAction;
     private RosServerProvider rosServerProvider;
     private Duration timeOut;
     private Log logger;
@@ -64,4 +66,9 @@ public class ActionProvider {
     public DecentralizedAction getDecentralizedAction(){return decentralizedAction;}
 
     public SimulinkAction getSimulinkAction(){return  simulinkAction;}
+
+    public HoldAction getHoldAction(int durationMs){
+
+        return new HoldAction(logger, stateTracker, new Duration(durationMs/1000, (durationMs%1000)*1000000),serviceProvider,rosPublisherProvider);
+    }
 }

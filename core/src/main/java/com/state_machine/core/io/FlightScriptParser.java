@@ -8,6 +8,7 @@ import com.state_machine.core.providers.ActionProvider;
 import com.state_machine.core.providers.StateProvider;
 import com.state_machine.core.states.State;
 import org.apache.commons.logging.Log;
+import org.ros.message.Duration;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -97,6 +98,8 @@ public class FlightScriptParser {
                 List<Float> xyz2 = repr.waypoint;
                 Waypoint objective2 = new Waypoint(xyz2.get(0), xyz2.get(1), xyz2.get(2));
                 return actionProvider.getPX4FlyToAction(objective2,seq);
+            case "HoldAction":
+                return actionProvider.getHoldAction(repr.durationMs);
             default:
                 log.warn("Flight io contained invalid action: " + repr.action);
                 return null;
@@ -120,6 +123,7 @@ public class FlightScriptParser {
         Float target_heightcm;
         List<Float> waypoint;
         String newMode; // new mode for SetFCUModeAction
+        int durationMs;
         //possible parameters go here by name
     }
 }

@@ -72,7 +72,8 @@ public class DecentralizedAction extends Action{
     private SimpleMatrix des_velocity;
     private int Ni;
 
-    /*Algorithm related Matrices*/
+    /*  */
+    private Time lastNeighborUpdateTimestamp;
 
     public DecentralizedAction(Log log,
                                DroneStateTracker stateTracker,
@@ -106,6 +107,32 @@ public class DecentralizedAction extends Action{
         Vmax = rosParamProvider.getVmax();
     }
 
+    //pow >= 1
+    private SimpleMatrix array_pow(SimpleMatrix mat, int pow){
+        SimpleMatrix ret = mat.copy();
+        for(int i = 1;i < pow;++i){
+            ret = ret.mult(mat);
+        }
+        return ret;
+    }
+
+    private void resetMatrices(int Ni){
+        //construct the matrices
+        I = SimpleMatrix.identity(Ni + 1);
+        Z = new SimpleMatrix(Ni + 1, Ni + 1);
+        Ts_Matrix = SimpleMatrix.identity(Ni + 1).scale(Ts);
+        A = new SimpleMatrix(2 * Ni + 2, 2 * Ni + 2);
+        B = new SimpleMatrix(2 * Ni + 2, Ni + 1);
+        X = new SimpleMatrix(2 * (Ni + 1) * (Hp + 1), 2);
+        PX = new SimpleMatrix(2 * (Ni + 1) * Hp, 2 * (Ni + 1));
+        PU = new SimpleMatrix(2 * (Ni + 1) * Hp, (Ni + 1) * Hu);
+        E = new SimpleMatrix((Ni + 1) * Hp, 2 * (Ni + 1) * Hp);
+        S = new SimpleMatrix((Ni + 1) * Hp, 2);
+        R = SimpleMatrix.identity(Hu * (Ni + 1)).scale(Lamda);
+        //log.info("R "+R.toString());
+        W = new SimpleMatrix(Ni + 1, (Ni + 1) * Hu);
+    }
+
     @Override
     public ActionStatus enterAction(Time time){
         status = ActionStatus.Inactive;
@@ -113,22 +140,10 @@ public class DecentralizedAction extends Action{
             updateParams();
             neighborStateTracker.UpdataNeighborList();
             Ni = neighborStateTracker.getNeighborNum();
+
             //log.info("neighbor number:" + Ni);
 
-            //construct the matrices
-            I = SimpleMatrix.identity(Ni + 1);
-            Z = new SimpleMatrix(Ni + 1, Ni + 1);
-            Ts_Matrix = SimpleMatrix.identity(Ni + 1).scale(Ts);
-            A = new SimpleMatrix(2 * Ni + 2, 2 * Ni + 2);
-            B = new SimpleMatrix(2 * Ni + 2, Ni + 1);
-            X = new SimpleMatrix(2 * (Ni + 1) * (Hp + 1), 2);
-            PX = new SimpleMatrix(2 * (Ni + 1) * Hp, 2 * (Ni + 1));
-            PU = new SimpleMatrix(2 * (Ni + 1) * Hp, (Ni + 1) * Hu);
-            E = new SimpleMatrix((Ni + 1) * Hp, 2 * (Ni + 1) * Hp);
-            S = new SimpleMatrix((Ni + 1) * Hp, 2);
-            R = SimpleMatrix.identity(Hu * (Ni + 1)).scale(Lamda);
-            //log.info("R "+R.toString());
-            W = new SimpleMatrix(Ni + 1, (Ni + 1) * Hu);
+            resetMatrices(Ni);
 
             velocityObjective.getTwist().getLinear().setX(0);
             velocityObjective.getTwist().getLinear().setY(0);
@@ -166,14 +181,7 @@ public class DecentralizedAction extends Action{
         }
     }
 
-    //pow >= 1
-    private SimpleMatrix array_pow(SimpleMatrix mat, int pow){
-        SimpleMatrix ret = mat.copy();
-        for(int i = 1;i < pow;++i){
-            ret = ret.mult(mat);
-        }
-        return ret;
-    }
+
 
     @Override
     public ActionStatus loopAction(Time time) {
@@ -184,6 +192,9 @@ public class DecentralizedAction extends Action{
             /* get current state */
             neighborVelocities = neighborStateTracker.getNeighborLocalVelocities();
             neighborPoses = neighborStateTracker.getNeighborVisionPoses();
+            Ni = neighborStateTracker.getNeighborNum();
+            resetMatrices(Ni);
+
             myVelocity = stateTracker.getLocalVelocity();
             myPose = stateTracker.getVisionPosition();
             double[][] temp_array = new double[2*(Ni + 1)][3];

@@ -14,6 +14,8 @@ import org.ros.node.topic.Subscriber;
 
 import java.util.Vector;
 
+import static java.lang.Math.sqrt;
+
 /**
  * Created by Gao Changyu on 12/11/16.
  */
@@ -28,11 +30,16 @@ public class NeighborStateTracker {
     private Vector<double[]> neighborVisionPoses;
     private Vector<double[]> neighborLocalVelocities;
     private Log log;
+    private DroneStateTracker stateTracker;
 
 
-    public NeighborStateTracker(ConnectedNode node){
+    public NeighborStateTracker(
+            ConnectedNode node,
+            DroneStateTracker stateTracker
+    ){
         this.log = node.getLog();
         this.node = node;
+        this.stateTracker = stateTracker;
         thisDroneName = node.getName().getParent().getBasename().toString();
         log.info("drone name:" + thisDroneName);
         masterStateClient = new MasterStateClient(node,node.getMasterUri());
@@ -41,6 +48,15 @@ public class NeighborStateTracker {
         neighborLocalVelocities = new Vector<>();
         neighborVisionPoses = new Vector<>();
         neighborNum = 0;
+    }
+
+    private double calcDistance(double[] pose1, double[] pose2){
+        double a,b,c;
+        a = pose1[0] - pose2[0];
+        b = pose1[1] - pose2[1];
+        c = pose2[2] - pose2[2];
+
+        return sqrt(a*a + b*b + c*c);
     }
 
     public boolean UpdataNeighborList(){
@@ -56,7 +72,7 @@ public class NeighborStateTracker {
                 if (!thisDroneName.equals("drone" + droneIndex)
                 && !masterStateClient.lookupNode("/drone" + droneIndex + "/state_machine").isOpaque()) {
 
-                    log.info("new neighbor found,drone name: drone" + droneIndex);
+                    //log.info("new neighbor found,drone name: drone" + droneIndex);
 
                     Subscriber<PoseStamped> newPoseSubscriber = node.newSubscriber("/drone" + droneIndex + "/mavros/vision_pose/pose", PoseStamped._TYPE);
                     neighborVisionPoseSubscribers.add(newPoseSubscriber);
@@ -96,8 +112,54 @@ public class NeighborStateTracker {
         return true;
     }
 
-    public Vector<double[]> getNeighborVisionPoses(){return neighborVisionPoses;}
-    public Vector<double[]> getNeighborLocalVelocities(){return neighborLocalVelocities;}
-    public int getNeighborNum(){return neighborNum;}
+    public boolean clearNeighborList(){
+
+        while(!neighborLocalVelocitySubscribers.isEmpty()){
+            neighborLocalVelocitySubscribers.remove(0).shutdown();
+        }
+
+        while(!neighborVisionPoseSubscribers.isEmpty()){
+            neighborVisionPoseSubscribers.remove(0).shutdown();
+        }
+
+        neighborLocalVelocities.clear();
+        neighborVisionPoses.clear();
+
+        return neighborVisionPoseSubscribers.isEmpty() && neighborLocalVelocitySubscribers.isEmpty();
+    }
+
+    public Vector<double[]> getNeighborVisionPoses(){
+
+        Vector<double[]> poses = new Vector<>();
+        for(int i =0; i<neighborVisionPoses.size(); i++){
+            if(calcDistance(stateTracker.getVisionPosition(),neighborVisionPoses.get(i)) < 20
+            ){
+                poses.add(neighborVisionPoses.get(i));
+            }
+        }
+
+        return poses;
+    }
+
+    public Vector<double[]> getNeighborLocalVelocities(){
+
+        Vector<double[]> vels = new Vector<>();
+        for(int i =0; i<neighborLocalVelocities.size(); i++){
+            if(calcDistance(stateTracker.getVisionPosition(),neighborVisionPoses.get(i)) < 20){
+                vels.add(neighborLocalVelocities.get(i));
+            }
+        }
+
+        return vels;
+    }
+    public int getNeighborNum(){
+        int n = 0;
+        for(int i =0; i<neighborVisionPoses.size(); i++){
+            if(calcDistance(stateTracker.getVisionPosition(),neighborVisionPoses.get(i)) < 20){
+                n += 1;
+            }
+        }
+        return n;
+    }
 
 }

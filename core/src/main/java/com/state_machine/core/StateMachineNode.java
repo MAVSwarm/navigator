@@ -36,14 +36,14 @@ public class StateMachineNode extends AbstractNodeMain {
         this.node = node;
         this.log = node.getLog();
         try {
-            Thread.sleep(20000); //forcing 5 seconds wait.
+            Thread.sleep(10000); //forcing 5 seconds wait.
 
             RosServiceProvider serviceProvider = new RosServiceProvider(node);
             RosSubscriberProvider subscriberProvider = new RosSubscriberProvider(node);
             RosPublisherProvider publisherProvider = new RosPublisherProvider(node);
             RosServerProvider serverProvider = new RosServerProvider(node);
             RosParamProvider rosParamProvider = new RosParamProvider(node,serviceProvider,log);
-            Duration timeOut = new Duration(60,0);//todo: remove the magic number here
+            Duration timeOut = new Duration(120,0);//todo: remove the magic number here
 
             droneStateTracker = new DroneStateTracker(
                     subscriberProvider.getStateSubscriber(),
@@ -54,7 +54,7 @@ public class StateMachineNode extends AbstractNodeMain {
                     subscriberProvider.getVisionPositionPoseSubscriber(),
                     subscriberProvider.getGlobalPositionGlobalSubscriber()
             );
-            neighborStateTracker = new NeighborStateTracker(node);
+            neighborStateTracker = new NeighborStateTracker(node, droneStateTracker);
             actionProvider = new ActionProvider(log, serviceProvider, droneStateTracker, neighborStateTracker, publisherProvider,timeOut,serverProvider, rosParamProvider);
             stateProvider = new StateProvider(actionProvider, serviceProvider, publisherProvider, log, droneStateTracker);
             fileProvider = new FileProvider(rosParamProvider,actionProvider, stateProvider, log);
@@ -90,7 +90,7 @@ public class StateMachineNode extends AbstractNodeMain {
                     stateMachine.setState(stateControl.getStateQueue().remove());
                 }
                 stateMachine.update(node.getCurrentTime());
-                Thread.sleep(20);
+                Thread.sleep(100);
             }
         });
         } catch(Exception e) {
