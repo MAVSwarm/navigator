@@ -44,8 +44,6 @@
   <build_depend>mavros</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_depend>onboard_statemachine_msgs</build_depend>
-  <build_depend>hover_controller_msgs</build_depend>
-  <run_depend>hover_controller_msgs</run_depend>
   <run_depend>onboard_statemachine_msgs</run_depend>
   <run_depend>mavros</run_depend>
   <run_depend>sensor_msgs</run_depend>

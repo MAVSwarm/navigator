@@ -14,7 +14,6 @@ find_package(catkin REQUIRED
     mavros
     sensor_msgs
     onboard_statemachine_msgs
-    hover_controller_msgs
 )
 
 generate_rosjava_messages(
