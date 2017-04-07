@@ -8,7 +8,6 @@ import org.ros.node.ConnectedNode;
 import org.ros.node.topic.Subscriber;
 import mavros_msgs.State;
 import sensor_msgs.NavSatFix;
-import nav_msgs.Odometry;
 
 public class RosSubscriberProvider {
 

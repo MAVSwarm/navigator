@@ -1,6 +1,5 @@
 package com.state_machine.core.providers;
 
-import geometry_msgs.Pose;
 import geometry_msgs.TwistStamped;
 import mavros_msgs.OverrideRCIn;
 import org.ros.node.ConnectedNode;

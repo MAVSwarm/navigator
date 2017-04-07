@@ -22,9 +22,6 @@ public class testGraphName extends AbstractNodeMain{
     public void onStart(final ConnectedNode node){
         this.node = node;
         masterStateClient = new MasterStateClient(node,node.getMasterUri());
-        //System.out.print(masterStateClient.lookupNode("/drone1/state_machine").toString());
-        //System.out.print(node.getName().toString());
-        //System.out.print("aa"+1);
 
         for(int index = 1;;){
             try{

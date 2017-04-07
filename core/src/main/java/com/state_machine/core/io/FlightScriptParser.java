@@ -8,7 +8,6 @@ import com.state_machine.core.providers.ActionProvider;
 import com.state_machine.core.providers.StateProvider;
 import com.state_machine.core.states.State;
 import org.apache.commons.logging.Log;
-import org.ros.message.Duration;
 
 import java.io.File;
 import java.io.FileInputStream;

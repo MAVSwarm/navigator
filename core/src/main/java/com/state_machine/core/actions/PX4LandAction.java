@@ -11,8 +11,6 @@ import org.ros.message.Time;
 import org.ros.node.service.ServiceClient;
 import org.ros.node.service.ServiceResponseListener;
 
-import static java.lang.Math.abs;
-
 /**
  * Created by firefly on 10/23/16.
  */

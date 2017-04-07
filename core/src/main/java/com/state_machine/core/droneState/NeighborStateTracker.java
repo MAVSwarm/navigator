@@ -1,13 +1,10 @@
 package com.state_machine.core.droneState;
 
-import geometry_msgs.Pose;
 import geometry_msgs.PoseStamped;
 import geometry_msgs.TwistStamped;
 import org.apache.commons.logging.Log;
 import org.ros.master.client.MasterStateClient;
 import org.ros.message.MessageListener;
-import org.ros.namespace.GraphName;
-import org.ros.namespace.NodeNameResolver;
 import org.ros.node.ConnectedNode;
 import org.ros.node.topic.Subscriber;
 

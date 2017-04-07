@@ -52,8 +52,6 @@ public class StateMachineNode extends AbstractNodeMain {
             actionProvider = new ActionProvider(log, serviceProvider, droneStateTracker, neighborStateTracker, publisherProvider,timeOut,serverProvider, rosParamProvider);
             stateProvider = new StateProvider(actionProvider, serviceProvider, publisherProvider, log, droneStateTracker);
             fileProvider = new FileProvider(rosParamProvider,actionProvider, stateProvider, log);
-            //stateQueue = fileProvider.readScript("/home/firefly/catkin_ws/src/onboard_statemachine/flight_script/test_flight.json");
-            //stateQueue = fileProvider.readScript(rosParamProvider.getFlightScriptPath());
             if(!serviceProvider.isConnected()) {
                 throw new Exception("service not connected, please run mavros first");
             }

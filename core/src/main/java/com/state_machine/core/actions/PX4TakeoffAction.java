@@ -1,13 +1,11 @@
 package com.state_machine.core.actions;
 
 import com.state_machine.core.actions.util.ActionStatus;
-import com.state_machine.core.actions.util.Waypoint;
 import com.state_machine.core.droneState.DroneLanded;
 import com.state_machine.core.droneState.DroneStateTracker;
 import mavros_msgs.CommandTOLRequest;
 import mavros_msgs.CommandTOLResponse;
 import org.apache.commons.logging.Log;
-import org.ros.RosRun;
 import org.ros.exception.RemoteException;
 import org.ros.message.Duration;
 import org.ros.message.Time;

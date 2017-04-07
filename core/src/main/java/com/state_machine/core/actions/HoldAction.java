@@ -1,12 +1,10 @@
 package com.state_machine.core.actions;
 
 import com.state_machine.core.actions.util.ActionStatus;
-import com.state_machine.core.actions.util.Waypoint;
 import com.state_machine.core.droneState.DroneLanded;
 import com.state_machine.core.droneState.DroneStateTracker;
 import com.state_machine.core.providers.RosPublisherProvider;
 import com.state_machine.core.providers.RosServiceProvider;
-import geometry_msgs.Pose;
 import geometry_msgs.PoseStamped;
 import mavros_msgs.SetModeRequest;
 import mavros_msgs.SetModeResponse;
