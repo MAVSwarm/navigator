@@ -9,6 +9,7 @@ import com.state_machine.core.states.State;
 import org.apache.commons.logging.Log;
 import org.ros.concurrent.CancellableLoop;
 import org.ros.message.Duration;
+import org.ros.message.Time;
 import org.ros.namespace.GraphName;
 import org.ros.node.AbstractNodeMain;
 import org.ros.node.ConnectedNode;
@@ -46,14 +47,7 @@ public class StateMachineNode extends AbstractNodeMain {
             Duration timeOut = new Duration(120,0);//todo: remove the magic number here
 
             droneStateTracker = new DroneStateTracker(
-                    subscriberProvider.getStateSubscriber(),
-                    subscriberProvider.getBatteryStateSubscriber(),
-                    subscriberProvider.getExtendedStateSubscriber(),
-                    subscriberProvider.getLocalPositionVelocitySubscriber(),
-                    subscriberProvider.getLocalPositionPoseSubscriber(),
-                    subscriberProvider.getVisionPositionPoseSubscriber(),
-                    subscriberProvider.getGlobalPositionGlobalSubscriber()
-            );
+                    subscriberProvider, node);
             neighborStateTracker = new NeighborStateTracker(node, droneStateTracker);
             actionProvider = new ActionProvider(log, serviceProvider, droneStateTracker, neighborStateTracker, publisherProvider,timeOut,serverProvider, rosParamProvider);
             stateProvider = new StateProvider(actionProvider, serviceProvider, publisherProvider, log, droneStateTracker);
@@ -64,7 +58,14 @@ public class StateMachineNode extends AbstractNodeMain {
                 throw new Exception("service not connected, please run mavros first");
             }
 
-            Thread.sleep(10000);
+            Time timeStamp = node.getCurrentTime();
+            while (!droneStateTracker.ready()){
+                if(node.getCurrentTime().subtract(timeStamp).compareTo(new Duration(20,0)) > 0){
+                    throw new Exception("timeout");
+                }
+                Thread.sleep(1000);
+            }
+            Thread.sleep(5000);
 
 
 

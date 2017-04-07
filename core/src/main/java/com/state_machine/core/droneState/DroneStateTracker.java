@@ -1,22 +1,20 @@
 package com.state_machine.core.droneState;
 
-import geometry_msgs.Pose;
+import com.state_machine.core.providers.RosSubscriberProvider;
 import geometry_msgs.PoseStamped;
-import geometry_msgs.PoseWithCovariance;
 import geometry_msgs.TwistStamped;
 import mavros_msgs.ExtendedState;
 import mavros_msgs.State;
+import org.ros.message.Duration;
+import org.ros.message.Time;
+import org.ros.node.ConnectedNode;
 import sensor_msgs.BatteryState;
-import nav_msgs.Odometry;
-import org.ros.internal.message.DefaultMessageFactory;
-import org.ros.message.MessageFactory;
 import org.ros.message.MessageListener;
-import org.ros.node.topic.Publisher;
-import org.ros.node.topic.Subscriber;
 import sensor_msgs.NavSatFix;
 
 public class DroneStateTracker {
 
+    private ConnectedNode node;
     private boolean armed;      //the drone arming status
     private float battery;              //battery remaining
     private DroneLanded droneLanded;    //the drone landing status
@@ -29,15 +27,14 @@ public class DroneStateTracker {
     private double altitude;
     private String FCUMode;
 
+    private Time lastBatteryTimestamp = new Time(0,0); // last update time of the battery status
+    private Time lastExtendedTimestamp = new Time(0,0); // last update time of the extended status
+
     public DroneStateTracker(
-            Subscriber<State> stateSubscriber,
-            Subscriber<BatteryState> batterySubscriber,
-            Subscriber<ExtendedState> extendedStateSubscriber,
-            Subscriber<TwistStamped> localPositionVelocitySubscriber,
-            Subscriber<PoseStamped> localPositionPoseSubscriber,
-            Subscriber<PoseStamped> visionPositionPoseSubscriber,
-            Subscriber<NavSatFix> globalPositionGlobalSubscriber
-            ){
+            RosSubscriberProvider rosSubscriberProvider, ConnectedNode node){
+
+        this.node = node;
+
         MessageListener<NavSatFix> globalPositionListener = new MessageListener<NavSatFix>() {
             @Override
             public void onNewMessage(NavSatFix navSatFix) {
@@ -46,7 +43,7 @@ public class DroneStateTracker {
                 altitude = navSatFix.getAltitude();
             }
         };
-        globalPositionGlobalSubscriber.addMessageListener(globalPositionListener);
+        rosSubscriberProvider.getGlobalPositionGlobalSubscriber().addMessageListener(globalPositionListener);
 
         MessageListener<TwistStamped> localVelocityListener = new MessageListener<TwistStamped>() {
             @Override
@@ -56,7 +53,7 @@ public class DroneStateTracker {
                 localVelocity[2] = twistStamped.getTwist().getLinear().getZ();
             }
         };
-        localPositionVelocitySubscriber.addMessageListener(localVelocityListener);
+        rosSubscriberProvider.getLocalPositionVelocitySubscriber().addMessageListener(localVelocityListener);
 
         MessageListener<PoseStamped> localPoseListener = new MessageListener<PoseStamped>() {
             @Override
@@ -66,7 +63,7 @@ public class DroneStateTracker {
                 localPosition[2] = poseStamped.getPose().getPosition().getZ();
             }
         };
-        localPositionPoseSubscriber.addMessageListener(localPoseListener);
+        rosSubscriberProvider.getLocalPositionPoseSubscriber().addMessageListener(localPoseListener);
 
         MessageListener<PoseStamped> visionPoseListener = new MessageListener<PoseStamped>() {
             @Override
@@ -76,7 +73,7 @@ public class DroneStateTracker {
                 visionPosition[2] = poseStamped.getPose().getPosition().getZ();
             }
         };
-        visionPositionPoseSubscriber.addMessageListener(visionPoseListener);
+        rosSubscriberProvider.getVisionPositionPoseSubscriber().addMessageListener(visionPoseListener);
 
         MessageListener<State> stateListener = new MessageListener<State>() {
             @Override
@@ -85,15 +82,16 @@ public class DroneStateTracker {
                 FCUMode = state.getMode();
             }
         };
-        stateSubscriber.addMessageListener(stateListener);
+        rosSubscriberProvider.getStateSubscriber().addMessageListener(stateListener);
 
         MessageListener<BatteryState> batteryListener = new MessageListener<BatteryState>() {
             @Override
             public void onNewMessage(BatteryState state) {
                 battery = state.getPercentage();
+                lastBatteryTimestamp = state.getHeader().getStamp();
             }
         };
-        batterySubscriber.addMessageListener(batteryListener);
+        rosSubscriberProvider.getBatteryStateSubscriber().addMessageListener(batteryListener);
 
         MessageListener<ExtendedState> extendedStateListener = new MessageListener<ExtendedState>() {
             @Override
@@ -106,9 +104,10 @@ public class DroneStateTracker {
                     case 2: droneLanded = DroneLanded.InAir;
                         break;
                 }
+                lastExtendedTimestamp = extendedState.getHeader().getStamp();
             }
         };
-        extendedStateSubscriber.addMessageListener(extendedStateListener);
+        rosSubscriberProvider.getExtendedStateSubscriber().addMessageListener(extendedStateListener);
 
         armed = false;
         battery = -1;
@@ -137,10 +136,8 @@ public class DroneStateTracker {
         localOrigin[2] = originValue[2];
     }
 
-    public boolean initialized(){
-        if (battery == -1 || droneLanded == DroneLanded.Undefined)
-            return false;
-        else
-            return true;
+    public boolean ready(){
+        return node.getCurrentTime().subtract(lastBatteryTimestamp).compareTo(new Duration(1, 0)) < 0
+                && node.getCurrentTime().subtract(lastExtendedTimestamp).compareTo(new Duration(1, 0)) < 0;
     }
 }
