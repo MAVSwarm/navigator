@@ -27,10 +27,15 @@ mainClassName = 'org.ros.RosRun'
 */
 repositories {
   //flatDir { dirs 'libs' }
+  maven{
+    url "https://github.com/gaochangyu/maven_repo/raw/master"
+  }
 }
+
 
 dependencies {
   compile group:'org.ejml',name:'all',version:'0.30'
+  compile 'org.ros.rosjava_messages:std_msgs:[0.5.11, )'
   compile 'org.ros.rosjava_core:rosjava:[0.3,)'
   compile 'org.ros.rosjava_messages:mavros_msgs:[0.18.0, )'
   compile 'org.ros.rosjava_messages:onboard_statemachine_msgs:[0.0.2, )'
