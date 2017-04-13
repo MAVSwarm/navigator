@@ -1,5 +1,5 @@
 <launch>
-    <node name="state_machine" pkg="onboard_statemachine" type="core" args="com.state_machine.core.StateMachineNode" >
+    <node name="state_machine" pkg="onboard_statemachine" type="run.sh" >
         <param name="FlightScriptPath" value="$(find onboard_statemachine)/flight_script/test_auto_takeoff.json" />
         <param name="PropertiesPath" value="$(find onboard_statemachine)/core/src/main/java/com/state_machine/core/providers/config.properties" />
     </node>
