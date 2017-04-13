@@ -66,13 +66,8 @@ public class PX4FlyToAction extends Action {
 
     @Override
     public ActionStatus enterAction(Time time){
-        status = ActionStatus.Inactive;
 
         if(stateTracker.getDroneLanded() == DroneLanded.InAir){
-
-            //objective.getPose().getPosition().setX(objective.getPose().getPosition().getX() - stateTracker.getLocalOrigin()[0]);
-            //objective.getPose().getPosition().setY(objective.getPose().getPosition().getY() - stateTracker.getLocalOrigin()[1]);
-            //objective.getPose().getPosition().setZ(objective.getPose().getPosition().getZ() - stateTracker.getLocalOrigin()[2]);
 
             objective.getPose().getPosition().setX(objective.getPose().getPosition().getX());
             objective.getPose().getPosition().setY(objective.getPose().getPosition().getY());
@@ -91,12 +86,12 @@ public class PX4FlyToAction extends Action {
                 ServiceResponseListener<SetModeResponse> listener = new ServiceResponseListener<SetModeResponse>() {
                     @Override
                     public void onSuccess(SetModeResponse setModeResponse) {
-                        status = ActionStatus.Success;
+                        serviceResult = ActionStatus.Success;
                     }
 
                     @Override
                     public void onFailure(RemoteException e) {
-                        status = ActionStatus.Failure;
+                        serviceResult = ActionStatus.Failure;
                     }
                 };
                 setModeService.call(request, listener);
@@ -104,8 +99,7 @@ public class PX4FlyToAction extends Action {
 
             timeStamp = time;
 
-            status = ActionStatus.Inactive;
-            return ActionStatus.Success;
+            return serviceResult;
         }else{
             return ActionStatus.Failure;
         }
@@ -115,18 +109,15 @@ public class PX4FlyToAction extends Action {
     public ActionStatus loopAction(Time time) {
         if(calculateDistance(objective.getPose(),stateTracker.getLocalPosition()) < 0.5
                 && stateTracker.getDroneLanded() == DroneLanded.InAir){
-            status = ActionStatus.Success;
-            return status;
+            return ActionStatus.Success;
         }else if(time.subtract(timeStamp).compareTo(timeOut) >= 0){
-            status = ActionStatus.Failure;
-            return status;
+            return ActionStatus.Failure;
         }else{
             objective.getHeader().setStamp(time);
             objective.getHeader().setSeq(seq);
             setpointPositionLocalPub.publish(objective);
             seq++;
-            status = ActionStatus.Waiting;
-            return status;
+            return ActionStatus.Running;
         }
     }
 }

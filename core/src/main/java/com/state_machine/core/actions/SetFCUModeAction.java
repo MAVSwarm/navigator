@@ -26,7 +26,6 @@ public class SetFCUModeAction extends Action{
 
     @Override
     public ActionStatus loopAction(Time time) {
-        if(status == ActionStatus.Inactive) {
             if(!setModeService.isConnected()) return ActionStatus.ConnectionFailure;
 
             SetModeRequest request = setModeService.newMessage();
@@ -36,21 +35,21 @@ public class SetFCUModeAction extends Action{
             ServiceResponseListener<SetModeResponse> listener = new ServiceResponseListener<SetModeResponse>() {
                 @Override
                 public void onSuccess(SetModeResponse setModeResponse) {
-                    status = ActionStatus.Success;
+                    serviceResult = ActionStatus.Success;
                 }
 
                 @Override
                 public void onFailure(RemoteException e) {
-                    status = ActionStatus.Failure;
+                    serviceResult = ActionStatus.Failure;
                 }
             };
             setModeService.call(request, listener);
 
-            status = ActionStatus.Waiting;
-            return status;
-        }else{
-            return status;
-        }
+            if(serviceResult == ActionStatus.Success){
+                return ActionStatus.Success;
+            }else{
+                return ActionStatus.Running;
+            }
     }
 
     public String toString(){

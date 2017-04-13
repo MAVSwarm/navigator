@@ -28,6 +28,7 @@ public class HoldAction extends Action {
     private Publisher<PoseStamped> setpointPositionLocalPub;
     private PoseStamped objective;
 
+
     public HoldAction(
             Log logger,
             DroneStateTracker stateTracker,
@@ -47,7 +48,6 @@ public class HoldAction extends Action {
 
     @Override
     public ActionStatus enterAction(Time time){
-        status = ActionStatus.Inactive;
 
         if(stateTracker.getDroneLanded() == DroneLanded.InAir){
 
@@ -66,18 +66,18 @@ public class HoldAction extends Action {
             ServiceResponseListener<SetModeResponse> listener = new ServiceResponseListener<SetModeResponse>() {
                 @Override
                 public void onSuccess(SetModeResponse setModeResponse) {
-                    status = ActionStatus.Success;
+                    serviceResult = ActionStatus.Success; //  for calling set mode service success
                 }
 
                 @Override
                 public void onFailure(RemoteException e) {
-                    status = ActionStatus.Failure;
+                    serviceResult = ActionStatus.Failure; //  for calling set mode service failed
                 }
             };
             setModeService.call(request, listener);
             timeStamp = time;
 
-            return status;
+            return serviceResult;
         }else{
             return ActionStatus.Failure;
         }
@@ -89,17 +89,15 @@ public class HoldAction extends Action {
 
     @Override
     public ActionStatus loopAction(Time time) {
-        if(time.subtract(timeStamp).compareTo(timeOut) > 0){
-            status = ActionStatus.Success;
-            return status;
-        }else{
+        if (time.subtract(timeStamp).compareTo(timeOut) > 0) {
+            return ActionStatus.Success;
+        } else {
 
             objective.getHeader().setStamp(time);
 
             setpointPositionLocalPub.publish(objective);
 
-            status = ActionStatus.Waiting;
-            return status;
+            return ActionStatus.Running;
         }
     }
 

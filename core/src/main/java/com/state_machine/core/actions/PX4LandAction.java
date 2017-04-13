@@ -36,8 +36,6 @@ public class PX4LandAction extends Action{
         double currentLongitude = stateTracker.getLongitude();
         double currentLattitude = stateTracker.getLattitude();
 
-        status = ActionStatus.Inactive;
-
         if(stateTracker.getDroneLanded() == DroneLanded.OnGround){
             return ActionStatus.Success;
         }else if(stateTracker.getDroneLanded() == DroneLanded.InAir){
@@ -50,20 +48,19 @@ public class PX4LandAction extends Action{
             ServiceResponseListener<CommandTOLResponse> listener = new ServiceResponseListener<CommandTOLResponse>() {
                 @Override
                 public void onSuccess(CommandTOLResponse commandTOLResponse) {
-                    status = ActionStatus.Success;
+                    serviceResult = ActionStatus.Success;
                 }
 
                 @Override
                 public void onFailure(RemoteException e) {
-                    status = ActionStatus.Failure;
+                    serviceResult = ActionStatus.Failure;
                 }
             };
             landService.call(message,listener);
 
             timeStamp = time;
 
-            status = ActionStatus.Inactive;
-            return ActionStatus.Success;
+            return serviceResult;
         }else{
             return ActionStatus.Failure;
         }
@@ -72,14 +69,11 @@ public class PX4LandAction extends Action{
     @Override
     public ActionStatus loopAction(Time time) {
         if(stateTracker.getDroneLanded() == DroneLanded.OnGround) {
-            status = ActionStatus.Success;
-            return status;
+            return ActionStatus.Success;
         }else if(time.subtract(timeStamp).compareTo(timeOut) >= 0){
-            status = ActionStatus.Failure;
-            return status;
+            return ActionStatus.Failure;
         }else{
-            status = ActionStatus.Waiting;
-            return status;
+            return ActionStatus.Running;
         }
     }
 

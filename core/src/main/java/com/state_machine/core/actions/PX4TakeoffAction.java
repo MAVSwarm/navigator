@@ -47,8 +47,6 @@ public class PX4TakeoffAction extends Action{
         double currentLattitude = stateTracker.getLattitude();
         targetAltitude = stateTracker.getAltitude() + target_heightm;
 
-        status = ActionStatus.Inactive;
-
         if(stateTracker.getDroneLanded() == DroneLanded.InAir){
             return ActionStatus.Success;
         }else if(stateTracker.getDroneLanded() == DroneLanded.OnGround){
@@ -62,20 +60,19 @@ public class PX4TakeoffAction extends Action{
             ServiceResponseListener<CommandTOLResponse> listener = new ServiceResponseListener<CommandTOLResponse>() {
                 @Override
                 public void onSuccess(CommandTOLResponse commandTOLResponse) {
-                    status = ActionStatus.Success;
+                    serviceResult = ActionStatus.Success;
                 }
 
                 @Override
                 public void onFailure(RemoteException e) {
-                    status = ActionStatus.Failure;
+                    serviceResult = ActionStatus.Failure;
                 }
             };
             takeoffService.call(message,listener);
 
             timeStamp = time;
 
-            status = ActionStatus.Inactive;
-            return ActionStatus.Success;
+            return serviceResult;
         }else{
             return ActionStatus.Failure;
         }
@@ -86,15 +83,11 @@ public class PX4TakeoffAction extends Action{
         if(stateTracker.getDroneLanded() == DroneLanded.InAir
                 && abs(stateTracker.getAltitude() - targetAltitude) < 0.5){
             logger.warn("takeoff success,distance" + abs(stateTracker.getAltitude() - targetAltitude));
-            status = ActionStatus.Success;
-            return status;
+            return ActionStatus.Success;
         }else if(time.subtract(timeStamp).compareTo(timeOut) >= 0){
-            status = ActionStatus.Failure;
-            return status;
+            return ActionStatus.Failure;
         }else{
-            status = ActionStatus.Waiting;
-            //logger.warn("distance to target takeoff point:" + abs(stateTracker.getAltitude() - target_heightm));
-            return status;
+            return ActionStatus.Running;
         }
     }
 

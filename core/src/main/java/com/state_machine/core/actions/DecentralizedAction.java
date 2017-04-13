@@ -72,9 +72,6 @@ public class DecentralizedAction extends Action{
     private SimpleMatrix des_velocity;
     private int Ni;
 
-    /*  */
-    private Time lastNeighborUpdateTimestamp;
-
     public DecentralizedAction(Log log,
                                DroneStateTracker stateTracker,
                                NeighborStateTracker neighborStateTracker,
@@ -135,7 +132,6 @@ public class DecentralizedAction extends Action{
 
     @Override
     public ActionStatus enterAction(Time time){
-        status = ActionStatus.Inactive;
         if(stateTracker.getDroneLanded() == DroneLanded.InAir) {
             updateParams();
             neighborStateTracker.UpdataNeighborList();
@@ -162,20 +158,19 @@ public class DecentralizedAction extends Action{
                 ServiceResponseListener<SetModeResponse> listener = new ServiceResponseListener<SetModeResponse>() {
                     @Override
                     public void onSuccess(SetModeResponse setModeResponse) {
-                        status = ActionStatus.Success;
+                        serviceResult = ActionStatus.Success;
                     }
 
                     @Override
                     public void onFailure(RemoteException e) {
-                        status = ActionStatus.Failure;
+                        serviceResult = ActionStatus.Failure;
                     }
                 };
                 setModeService.call(request, listener);
             }
 
             timeStamp = time;
-            status = ActionStatus.Inactive;
-            return ActionStatus.Success;
+            return serviceResult;
         }else{
             return ActionStatus.Failure;
         }
@@ -309,7 +304,7 @@ public class DecentralizedAction extends Action{
                 log.info("neighbor" + (i + 1) + " vel:" + neighborVelocities.elementAt(i)[0] + ", " + neighborVelocities.elementAt(i)[1] + ", " + neighborVelocities.elementAt(i)[2]);
             }
             */
-            return ActionStatus.Waiting;
+            return ActionStatus.Running;
         }
     }
 }

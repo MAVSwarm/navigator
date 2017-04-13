@@ -13,6 +13,7 @@ public class DisarmAction extends Action {
 
     private DroneStateTracker stateTracker;
     private ServiceClient<CommandBoolRequest, CommandBoolResponse> armingService;
+    private int retryCount;
 
     public DisarmAction(
             ServiceClient<CommandBoolRequest, CommandBoolResponse> armingService,
@@ -21,35 +22,40 @@ public class DisarmAction extends Action {
         super();
         this.stateTracker = stateTracker;
         this.armingService = armingService;
+        retryCount = 0;
     }
 
     public ActionStatus loopAction(Time time){
         if (!stateTracker.getArmed()) {
             return ActionStatus.Success;
         }
-        else if (status == ActionStatus.Inactive) {
+        else{
             if(!armingService.isConnected()) return ActionStatus.ConnectionFailure;
+
+            if(retryCount == 10)
+                return ActionStatus.Failure;
 
             CommandBoolRequest message = armingService.newMessage();
             message.setValue(false);
             ServiceResponseListener<CommandBoolResponse> listener = new ServiceResponseListener<CommandBoolResponse>() {
                 @Override
                 public void onSuccess(CommandBoolResponse commandBoolResponse) {
-                    status = ActionStatus.Success;
+                    serviceResult = ActionStatus.Success;
                 }
 
                 @Override
                 public void onFailure(RemoteException e) {
-                    status = ActionStatus.Failure;
+                    serviceResult = ActionStatus.Failure;
                 }
             };
             armingService.call(message, listener);
 
-            status = ActionStatus.Waiting;
-            return ActionStatus.Waiting;
-        }
-        else {
-            return status;
+            retryCount += 1;
+            if(serviceResult == ActionStatus.Success){
+                return ActionStatus.Success;
+            }else{
+                return ActionStatus.Running;
+            }
         }
     }
 

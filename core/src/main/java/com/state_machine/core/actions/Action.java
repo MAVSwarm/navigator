@@ -9,17 +9,16 @@ public abstract class Action {
     // timeStamp records the start time of an action.
     protected Time timeStamp = new Time(0,0);
 
-    protected ActionStatus status;
+    protected ActionStatus serviceResult;
 
     protected static final Duration enterTimeOut = new Duration(0,50000);
 
     public abstract ActionStatus loopAction(Time time);
 
     public Action() {
-        status = ActionStatus.Inactive;
     }
 
-    public ActionStatus enterAction(Time time) { status = ActionStatus.Inactive; return status;}
+    public ActionStatus enterAction(Time time) { return ActionStatus.Success; }
 
     public void exitAction(){}
 }

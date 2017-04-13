@@ -15,6 +15,7 @@ public class ArmAction extends Action {
     private DroneStateTracker stateTracker;
     private ServiceClient<CommandBoolRequest, CommandBoolResponse> armingService;
     private Log logger;
+    private int retryCount;
 
     public ArmAction(
             Log logger,
@@ -22,6 +23,7 @@ public class ArmAction extends Action {
             DroneStateTracker stateTracker
     ){
         super();
+        retryCount = 0;
         this.logger = logger;
         this.stateTracker = stateTracker;
         this.armingService = armingService;
@@ -31,35 +33,36 @@ public class ArmAction extends Action {
         if (stateTracker.getArmed()) {
             return ActionStatus.Success;
         }
-        else if (status == ActionStatus.Inactive) {
-                if (!armingService.isConnected()) return ActionStatus.ConnectionFailure;
-
-                CommandBoolRequest message = armingService.newMessage();
-                message.setValue(true);
-                ServiceResponseListener<CommandBoolResponse> listener = new ServiceResponseListener<CommandBoolResponse>() {
-                    @Override
-                    public void onSuccess(CommandBoolResponse commandBoolResponse) {
-                        status = ActionStatus.Success;
-                    }
-
-                    @Override
-                    public void onFailure(RemoteException e) {
-                        status = ActionStatus.Failure;
-                    }
-                };
-                armingService.call(message, listener);
-
-                stateTracker.setLocalOrigin(stateTracker.getVisionPosition());
-                //logger.warn("set local origin at "
-                //        + stateTracker.getLocalOrigin()[0] + ","
-                //        + stateTracker.getLocalOrigin()[1] + ","
-                //       + stateTracker.getLocalOrigin()[2] + ".");
-
-                status = ActionStatus.Waiting;
-                return ActionStatus.Waiting;
-        }
         else {
-            return status;
+            if (!armingService.isConnected()) return ActionStatus.ConnectionFailure;
+
+
+            if(retryCount == 10)    //if try to arm for 10 times, return failure
+                return ActionStatus.Failure;
+
+            CommandBoolRequest message = armingService.newMessage();
+            message.setValue(true);
+            
+            ServiceResponseListener<CommandBoolResponse> listener = new ServiceResponseListener<CommandBoolResponse>() {
+                @Override
+                public void onSuccess(CommandBoolResponse commandBoolResponse) {
+                    serviceResult = ActionStatus.Success;
+                }
+
+                @Override
+                public void onFailure(RemoteException e) {
+                    serviceResult = ActionStatus.Failure;
+                }
+            };
+            armingService.call(message, listener);
+
+            stateTracker.setLocalOrigin(stateTracker.getVisionPosition());
+            retryCount += 1;
+            if(serviceResult == ActionStatus.Success){
+                return ActionStatus.Success;
+            }else{
+                return ActionStatus.Running;
+            }
         }
     }
 
