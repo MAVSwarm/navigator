@@ -37,8 +37,4 @@ public class StateProvider {
         return new ScriptedState(actions, actionProvider, serviceProvider.getSetFCUModeService(), log);
     }
 
-    public SimulinkState getSimulinkState(){
-        return new SimulinkState(actionProvider, serviceProvider.getSetFCUModeService(),log);
-    }
-
 }

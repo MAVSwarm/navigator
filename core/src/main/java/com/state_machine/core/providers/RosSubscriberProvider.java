@@ -20,6 +20,8 @@ public class RosSubscriberProvider {
     private Subscriber<PoseStamped> localPositionPoseSubscriber;
     private Subscriber<PoseStamped> visionPositionPoseSubscriber;
 
+    private Subscriber<TwistStamped> externalVelocitySetpointSubscriber;
+
 
     public RosSubscriberProvider(ConnectedNode node){
         stateSubscriber = node.newSubscriber("mavros/state", State._TYPE);
@@ -29,6 +31,7 @@ public class RosSubscriberProvider {
         localPositionVelocitySubscriber = node.newSubscriber("mavros/local_position/velocity", TwistStamped._TYPE);
         localPositionPoseSubscriber = node.newSubscriber("mavros/local_position/pose", PoseStamped._TYPE);
         visionPositionPoseSubscriber = node.newSubscriber("mavros/vision_pose/pose", PoseStamped._TYPE);
+        externalVelocitySetpointSubscriber = node.newSubscriber("~/velocity_setpoint", TwistStamped._TYPE);
     }
 
     public Subscriber<State> getStateSubscriber() { return stateSubscriber; }
@@ -38,4 +41,5 @@ public class RosSubscriberProvider {
     public Subscriber<TwistStamped> getLocalPositionVelocitySubscriber(){return localPositionVelocitySubscriber;}
     public Subscriber<PoseStamped> getLocalPositionPoseSubscriber() { return localPositionPoseSubscriber;}
     public Subscriber<PoseStamped> getVisionPositionPoseSubscriber() { return visionPositionPoseSubscriber;}
+    public Subscriber<TwistStamped> getExternalVelocitySetpointSubscriber() { return externalVelocitySetpointSubscriber;}
 }

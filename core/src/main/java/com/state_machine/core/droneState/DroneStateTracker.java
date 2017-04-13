@@ -15,9 +15,9 @@ import sensor_msgs.NavSatFix;
 public class DroneStateTracker {
 
     private ConnectedNode node;
-    private boolean armed;      //the drone arming status
+    private boolean armed;      //the drone arming serviceResult
     private float battery;              //battery remaining
-    private DroneLanded droneLanded;    //the drone landing status
+    private DroneLanded droneLanded;    //the drone landing serviceResult
     private double[] localVelocity = new double[3];
     private double[] localPosition = new double[3];
     private double[] localOrigin = new double[3];// temporally use this variable to store the local origin coordinate in world frame.
@@ -27,8 +27,8 @@ public class DroneStateTracker {
     private double altitude;
     private String FCUMode;
 
-    private Time lastBatteryTimestamp = new Time(0,0); // last update time of the battery status
-    private Time lastExtendedTimestamp = new Time(0,0); // last update time of the extended status
+    private Time lastBatteryTimestamp = new Time(0,0); // last update time of the battery serviceResult
+    private Time lastExtendedTimestamp = new Time(0,0); // last update time of the extended serviceResult
 
     public DroneStateTracker(
             RosSubscriberProvider rosSubscriberProvider, ConnectedNode node){
