@@ -99,6 +99,8 @@ public class FlightScriptParser {
                 return actionProvider.getPX4FlyToAction(objective2,seq);
             case "HoldAction":
                 return actionProvider.getHoldAction(repr.durationMs);
+            case "ExternalAction":
+                return actionProvider.getExternalAction(repr.durationMs);
             default:
                 log.warn("Flight io contained invalid action: " + repr.action);
                 return null;
