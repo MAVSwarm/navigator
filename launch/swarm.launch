@@ -1,7 +1,7 @@
 <launch>
     <arg name="FlightScriptPath" default="$(arg FlightScriptPath)" />
-    <node name="state_machine" pkg="onboard_statemachine" type="run.sh" >
+    <node name="navigator" pkg="navigator" type="run.sh" >
         <param name="FlightScriptPath" value="$(arg FlightScriptPath)" />
-        <param name="PropertiesPath" value="$(find onboard_statemachine)/configs/config.properties" />
+        <param name="PropertiesPath" value="$(find navigator)/configs/config.properties" />
     </node>
 </launch>

@@ -10,7 +10,7 @@ import time
 def velocityBroadcast():
        
     rospy.init_node('position_broadcast',anonymous=True)       
-    pub = rospy.Publisher('/drone1/state_machine/velocity_setpoint',TwistStamped,queue_size=1)
+    pub = rospy.Publisher('/drone1/navigator/velocity_setpoint',TwistStamped,queue_size=1)
     sequence = 0
     
     while(True):

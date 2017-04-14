@@ -38,7 +38,7 @@ dependencies {
   compile 'org.ros.rosjava_messages:std_msgs:[0.5.11, )'
   compile 'org.ros.rosjava_core:rosjava:[0.3,)'
   compile 'org.ros.rosjava_messages:mavros_msgs:[0.18.0, )'
-  compile 'org.ros.rosjava_messages:onboard_statemachine_msgs:[0.0.2, )'
+  compile 'org.ros.rosjava_messages:navigator_msgs:[1.0.0, )'
   compile 'org.ros.rosjava_messages:sensor_msgs:1.11.9'
   compile 'com.google.code.gson:gson:[2.6,)'
   testCompile 'junit:junit:[4.11, )'
